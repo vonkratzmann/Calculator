@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Calculator</string>
+    <string name="action_settings">Settings</string>
+    <string name="help_text">
+        <![CDATA[
+                 <h1>Initial Calculation</h1>
+                    For the first calculation, enter a number by pressing the numerical buttons, followed by an operator (+, -, *, /) button, followed by another number, followed by the equals button.
+                     <h2>Ongoing Calculations</h2>
+                    If another number is entered immediately after a calculation, the display is cleared and the operation is done as per an <i>initial calculation</i>. <br>
+                    If an operator (+, -, *, /), is entered immediately after a calculation, the calculation is carried out on the previous result and the newly entered number.
+                    Only one operator (+, -, *, /) can be selected for a calculation, extras operators are ignored.
+                <h1> Clear Button</h1>
+                    The <i>Clear</i> button clears the display, and the next operation is carried out as per an <i>initial calculation</i>.
+                <h1> Back Button </h1>
+                    The <i>Back</i> button clears the last character from the display, it will not clear a a previous displayed result.
+                <h1>Size</h1>
+                    Up to 18 characters can be entered for a number, any extra characters are ignored.
+                <h1>Checking</h1>
+                    Calculations are checked for divide by zero, and overflows.
+                    If detected the calcuation is ignored and an error message is displayed.
+        ]]>
+        </string>
+</resources>
