@@ -1,6 +1,8 @@
 package kirk.calculator;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,7 @@ public class Calulator extends AppCompatActivity {
     TextView textView;
     Display display;
     ProcessKeys processKeys;
+    SharedPreferences sharedPreferences;
 
     Long accumulator;
     Long result;
@@ -48,6 +51,9 @@ public class Calulator extends AppCompatActivity {
         if (toolbar != null)
             setSupportActionBar(toolbar);
 
+        Context context = getApplicationContext();
+        sharedPreferences = context.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
         processKeys = new ProcessKeys();
         display = new Display();
         numberAsString = new StringBuilder(NUMBUFSIZE);
@@ -55,17 +61,32 @@ public class Calulator extends AppCompatActivity {
          // Check if instance has been saved
         if  (savedInstanceState != null) {
             // Yes restore state members from saved instance
-            display.addString(savedInstanceState.getString("textView"));
-            accumulator         = savedInstanceState.getLong("accumulator");
-            result              = savedInstanceState.getLong("result");
-            numberAsString.append(savedInstanceState.getString("numberAsString"));
-            numberAsString.delete(0, numberAsString.length());                      // Clear string
-            previousCalculation = savedInstanceState.getBoolean("previousCalculation");
-            accumulatorUsed     = savedInstanceState.getBoolean("accumulatorUsed");
-            negativeNumber      = savedInstanceState.getBoolean("negativeNumber");
-            deleteFlag          = savedInstanceState.getBoolean("deleteFlag");
-            operatorChar        = savedInstanceState.getChar("operatorChar");
-            lastChar            = savedInstanceState.getChar("lastChar");
+            display.addString(savedInstanceState.getString(getString(   R.string.textView_Key)));
+            accumulator         = savedInstanceState.getLong(getString( R.string.accumulator_Key));
+            result              = savedInstanceState.getLong(getString( R.string.result_Key));
+            numberAsString.delete(0, numberAsString.length());                                      // Clear string
+            numberAsString.append(savedInstanceState.getString(getString( R.string.numberAsString_Key)));
+            previousCalculation = savedInstanceState.getBoolean(getString(R.string.previousCalculation_Key));
+            accumulatorUsed     = savedInstanceState.getBoolean(getString(R.string.accumulatorUsed_Key));
+            negativeNumber      = savedInstanceState.getBoolean(getString(R.string.negativeNumber_Key));
+            deleteFlag          = savedInstanceState.getBoolean(getString(R.string.deleteFlag_Key));
+            operatorChar        = savedInstanceState.getChar(getString(   R.string.operatorChar_Key));
+            lastChar            = savedInstanceState.getChar(getString(   R.string.lastChar_Key));
+            
+        // Check if values have been saved in preference file    
+        } else if (sharedPreferences.getString(getString( R.string.textView_Key), null) != null) {
+            // Yes restore the values
+            display.addString(sharedPreferences.getString(getString( R.string.textView_Key), null));
+            accumulator         = sharedPreferences.getLong(getString(R.string.accumulator_Key),0);
+            result              = sharedPreferences.getLong(getString(   R.string.result_Key), 0);
+            numberAsString.delete(0, numberAsString.length());                                      // Clear string
+            numberAsString.append(sharedPreferences.getString(getString( R.string.numberAsString_Key), null));
+            previousCalculation = sharedPreferences.getBoolean(getString(R.string.previousCalculation_Key), false);
+            accumulatorUsed     = sharedPreferences.getBoolean(getString(R.string.accumulatorUsed_Key), false);
+            negativeNumber      = sharedPreferences.getBoolean(getString(R.string.negativeNumber_Key), false);
+            deleteFlag          = sharedPreferences.getBoolean(getString(R.string.deleteFlag_Key), false);
+            operatorChar        = sharedPreferences.getString(getString( R.string.operatorChar_Key),null).charAt(0);
+            lastChar            = sharedPreferences.getString(getString( R.string.lastChar_Key), null).charAt(0);
         } else {
             // No clear all the variables
             resetRegisters();
@@ -77,16 +98,16 @@ public class Calulator extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 //        Log.i(TAG, "onSaveInstanceState");
-        savedInstanceState.putString("textView", display.getString());
-        savedInstanceState.putLong("accumulator", accumulator);
-        savedInstanceState.putLong("result", result);
-        savedInstanceState.putString("numberAsString", numberAsString.toString());
-        savedInstanceState.putBoolean("previousCalculation", previousCalculation);
-        savedInstanceState.putBoolean("accumulatorUsed", accumulatorUsed);
-        savedInstanceState.putBoolean("negativeNumber", negativeNumber);
-        savedInstanceState.putBoolean("deleteFlag", deleteFlag);
-        savedInstanceState.putChar("operatorChar", (char) operatorChar);
-        savedInstanceState.putChar("lastChar", (char) lastChar);
+        savedInstanceState.putString(getString( R.string.textView_Key), display.getString());
+        savedInstanceState.putLong(getString(   R.string.accumulator_Key), accumulator);
+        savedInstanceState.putLong(getString(   R.string.result_Key), result);
+        savedInstanceState.putString(getString( R.string.numberAsString_Key), numberAsString.toString());
+        savedInstanceState.putBoolean(getString(R.string.previousCalculation_Key), previousCalculation);
+        savedInstanceState.putBoolean(getString(R.string.accumulatorUsed_Key), accumulatorUsed);
+        savedInstanceState.putBoolean(getString(R.string.negativeNumber_Key), negativeNumber);
+        savedInstanceState.putBoolean(getString(R.string.deleteFlag_Key), deleteFlag);
+        savedInstanceState.putChar(getString(   R.string.operatorChar_Key), (char) operatorChar);
+        savedInstanceState.putChar(getString(   R.string.lastChar_Key), (char) lastChar);
     }
 
     public void resetRegisters() {
@@ -108,6 +129,25 @@ public class Calulator extends AppCompatActivity {
         // Inflate the menu; thi adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_calulator,menu);
         return true;
+    }
+
+    // Save values in preferences file so user can resume if application destroyed
+    public void onStop() {
+        super.onStop();
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(getString( R.string.textView_Key), display.getString());
+        editor.putLong(getString(   R.string.accumulator_Key), accumulator);
+        editor.putLong(getString(   R.string.result_Key), result);
+        editor.putString(getString( R.string.numberAsString_Key), numberAsString.toString());
+        editor.putBoolean(getString(R.string.previousCalculation_Key), previousCalculation);
+        editor.putBoolean(getString(R.string.accumulatorUsed_Key), accumulatorUsed);
+        editor.putBoolean(getString(R.string.negativeNumber_Key), negativeNumber);
+        editor.putBoolean(getString(R.string.deleteFlag_Key), deleteFlag);
+        editor.putString(getString( R.string.operatorChar_Key), Character.toString(operatorChar));
+        editor.putString(getString( R.string.lastChar_Key), Character.toString(lastChar));
+        editor.commit();
     }
 
     @Override
